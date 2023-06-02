@@ -9,10 +9,7 @@
     The certificates have a shorter renewal time (ie less than a year) so this script will need to run periodically to update the openVPN configuration.
 #>
 
-$logpath = $MyInvocation.MyCommand.Path + '\log'
-New-Item -itemType Directory -path $logpath -errorAction SilentlyContinue
-
-Start-Transcript -path ($logpath + '\generate_ovpn_config.log.txt')
+Start-Transcript -path '.\generate_ovpn_config.log.txt'
 
 # Load variable parameters
 $var = Get-Content "config_params.json" | ConvertFrom-JSON
@@ -124,6 +121,7 @@ $configFile | Out-File $configFile_path  -encoding ascii
 Write-Output ("Saved to " + $configFile_path + "`n")
 
 # OpenVPN service autostart
-Get-Service OpenVPNService | Restart-Service
+Get-Service OpenVPNService | Stop-Service
+& ".\enforce_office_hours.ps1"
 
 Stop-Transcript
