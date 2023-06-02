@@ -12,7 +12,7 @@
 $logpath = $MyInvocation.MyCommand.Path + '\log'
 New-Item -itemType Directory -path $logpath -errorAction SilentlyContinue
 
-Start-Transcript -path ($logpath + '\generate_ovpn_config.log.txt') -UseMinimalHeader
+Start-Transcript -path ($logpath + '\generate_ovpn_config.log.txt')
 
 # Load variable parameters
 $var = Get-Content "config_params.json" | ConvertFrom-JSON
@@ -59,8 +59,8 @@ $cert = Get-ChildItem -path cert:\LocalMachine\My | Where-Object {
     -and ('Client Authentication' -in $_.EnhancedKeyUsageList.FriendlyName) `
     -and ((Get-Date) -gt $_.notBefore) `
     -and ((Get-Date) -lt $_.notAfter) `
-    -and $_.Subject -like "*$myFQDN"
-}
+    -and $_.Subject -like "*$myFQDN*"
+} | Sort-Object -property NotAfter | Select-Object -last 1
 
 if (!($cert)) {
     Write-Error "None found, cannot continue"

@@ -148,12 +148,6 @@ function cacheDL () {
 		SHA256 = $newHash
 	}
 }
-function serviceFound () {
-  param (
-    [parameter(position=0)][string]$svc
-  )
-  return (Get-Service -name $svc -erroraction silentlycontinue)
-}
 
 # Delay random amount of time, to ease network congestion
 if ($wait) {
@@ -213,31 +207,6 @@ $procSplat = @{
 Write-Host "Installing..."
 Start-Process @procSplat
 
-if (serviceFound "OpenVPNService") {
+if (Get-Service -name $svc -erroraction silentlycontinue) {
   Write-Host "Success!"
 }
-
-
-# -------------------------------
-
-# Configure service security, allow user to stop/start the service (but not disable / enable):
-# https://www.winhelponline.com/blog/view-edit-service-permissions-windows/
-
-$svcName = "OpenVPNservice"
-$sddl = cmd /c SC sdshow $svcName | Where-Object {$_}
-$d_part, $s_part = $sddl -split "(?<=\))([DS]):"
-$ddd = $d_part.split(':')[1]
-$d_parts = $ddd -split "\(|\)" | Where-Object {$_}
-
-$d_part_new = 'D:'
-foreach ($d in $d_parts) {
-    if ($d.endswith(';;;IU')) {
-        $d = "A;;CCLCSWLOCRRCRPWP;;;IU"
-    }
-    $d_part_new += '(' + $d + ')'
-}
-$sddl_new = $d_part_new + ($s_part -join ':')
-
-Write-Host $sddl
-Write-Host $sddl_new
-cmd /c SC sdset $svcName $sddl_new

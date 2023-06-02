@@ -42,8 +42,11 @@ $cfgLinkName = $linksFolder_Path + '\Open ' + $conf.configName + ' config path.l
 $svcStartName = $linksFolder_Path + '\Start ' + $conf.configName + '.lnk'
 $svcStopName = $linksFolder_Path + '\Stop ' + $conf.configName + '.lnk'
 
+# a scratch folder
+$wrk = "$env:programdata\my_rmm"
+
 # Create Folders
-foreach ($pp in $install_path,$linksFolder_Path) {
+foreach ($pp in $install_path,$linksFolder_Path,$wrk) {
     if (!(Test-Path $pp)) {
         $dirsplat = @{
             ItemType = 'Directory'
@@ -54,14 +57,20 @@ foreach ($pp in $install_path,$linksFolder_Path) {
     }
 }
 
-
 # ----------------------------------------------------------
 # Deliver the corpvpn folder to the client computer somehow
 
 # Copy-Item corpvpn -destination $install_path -force -Recurse
 
+# or
 
-# Expand-Archive "c:\programdata\gsit\vpn.zip" -destination $install_path -force
+<#
+$configURL = 'https://url.of.zipped.corpvpn.folder/vpn.zip'
+$zipdl = "$wrk\vpn.zip"
+(New-Object System.Net.webClient).DownloadFile($configURL,$zipdl)  
+Expand-Archive $zipdl -destination $install_path -force
+#>
+
 
 # --------------------------------------------------------
 # Uncomment to clean remove any existing OpenVPN profiles
