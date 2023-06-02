@@ -1,0 +1,1 @@
+Compress-Archive -path .\corpvpn\* -destinationpath .\vpn.zip -force
