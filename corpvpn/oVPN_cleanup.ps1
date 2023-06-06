@@ -22,3 +22,11 @@ Foreach ($u in $users) {
         Remove-Item ($path + "\log\*") -Recurse -Force
     }
 }
+
+$tasklist = Get-ScheduledTask -taskPath "\corpVPN\*"
+if ($tasklist) {
+    foreach ($t in $tasklist) {
+        write-host "Removing task" $t.Taskname
+        Unregister-ScheduledTask -TaskName $t.TaskName -confirm:$false
+    }
+}
