@@ -23,6 +23,7 @@ Foreach ($u in $users) {
     }
 }
 
+# Delete tasks
 $tasklist = Get-ScheduledTask -taskPath "\corpVPN\*"
 if ($tasklist) {
     foreach ($t in $tasklist) {
@@ -30,3 +31,6 @@ if ($tasklist) {
         Unregister-ScheduledTask -TaskName $t.TaskName -confirm:$false
     }
 }
+
+# Delete script folder
+Remove-Item -path "$env:programData\corpvpn" -recurse -force -confirm:$false -erroraction silentlycontinue

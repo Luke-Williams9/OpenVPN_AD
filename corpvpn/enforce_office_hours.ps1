@@ -94,7 +94,7 @@ Try {
 }
 # If failed, then load the most recent user info
 Catch {
-  $userObj = (Import-CLMXML "$install_path\usercached.xml").data
+  $userObj = (Import-CLIXML "$install_path\usercached.xml").data
   Write-Host "Using cached user info"
 }
 
