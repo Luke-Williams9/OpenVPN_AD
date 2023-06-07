@@ -11,6 +11,7 @@ tls-client
 client
 resolv-retry infinite
 remote <<remoteIP>> <<remotePort>> udp4
+setenv opt block-outside-dns
 nobind
 verify-x509-name <<x509>> name
 ca <<file_ca>>

@@ -97,6 +97,7 @@ Catch {
   $userObj = (Import-CLIXML "$install_path\usercached.xml").data
   Write-Host "Using cached user info"
 }
+$userObj | Format-List
 
 # a couple Boolean values
 $isDomainAdmin = (($userObj.properties.memberof -match 'CN=Domain Admins').length -gt 0)

@@ -25,6 +25,7 @@ $conf = @{
     time_end = "5:45pm"
     work_days = @("Monday","Tuesday","Wednesday","Thursday","Friday")
     adgroup = "SG-OpenVPN_users-24x7"
+    ekuName = "IP security end system"
 }
 $install_path = "$env:programData\corpvpn"
 New-Item -itemType Directory -path $install_path -errorAction silentlyContinue

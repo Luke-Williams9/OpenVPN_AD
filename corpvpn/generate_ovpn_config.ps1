@@ -53,7 +53,7 @@ $myFQDN = $env:computerName
 Write-Output ("Looking for Client Authentication certificate, issued from " + $var.ca)
 $cert = Get-ChildItem -path cert:\LocalMachine\My | Where-Object {
     ($_.issuer -match $var.ca) `
-    -and ('Client Authentication' -in $_.EnhancedKeyUsageList.FriendlyName) `
+    -and ($var.ekuName -in $_.EnhancedKeyUsageList.FriendlyName) `
     -and ((Get-Date) -gt $_.notBefore) `
     -and ((Get-Date) -lt $_.notAfter) `
     -and $_.Subject -like "*$myFQDN*"
