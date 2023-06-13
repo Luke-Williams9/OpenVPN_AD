@@ -104,6 +104,7 @@ $sddl_new = $d_part_new + ($s_part -join ':')
 Write-Host $sddl
 Write-Host $sddl_new
 cmd /c SC sdset $svcName $sddl_new
+Set-Service $svName -StartupType Manual
 
 # ----------------------------------------------------------------
 # Interface up task - on network connection, disable VPN if on an office network

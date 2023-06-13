@@ -129,7 +129,7 @@ if ($activateVPN -eq $true ) {
   # Work Hours start
   if ($svc.StartupType -eq 'Disabled') {
     # Only modify / start service if its disabled. If its set to auto/manual then it may be off for a reason
-    $svc | Set-Service -startupType "Automatic"
+    $svc | Set-Service -startupType "Manual"
     & "$install_path\ifup.ps1" # instead of starting the service, run ifup.ps1, which will start it only if they are remote
     
   }
