@@ -1,5 +1,6 @@
 # Logger include
-
+$a = $MyInvocation.ScriptName.split('\')
+$global:parent = $a[$a.count-1].split('.')[0]
 $global:logfile = "scripts_log.txt"
 $global:logfile_old = $logfile + '.old'
 # Rotate Log file @ 2mb
@@ -21,7 +22,7 @@ if (!(Test-Path $logfile)) {
 function Write-Log {
     [CmdletBinding()]
     param (
-        [string]$process = $MyInvocation.MyCommand.Name,
+        [string]$process = $parent,
         [Parameter(position=0)][string]$message
     )
     $log_line = (Get-Date -format "dd-MM-yyyy HH:mm:ss") + ' :: ' + $process + ' :: ' + $message

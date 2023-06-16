@@ -1,0 +1,99 @@
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+  <Obj RefId="0">
+    <TN RefId="0">
+      <T>System.Management.Automation.InvocationInfo</T>
+      <T>System.Object</T>
+    </TN>
+    <ToString>System.Management.Automation.InvocationInfo</ToString>
+    <Props>
+      <Obj N="MyCommand" RefId="1">
+        <TN RefId="1">
+          <T>System.Management.Automation.ExternalScriptInfo</T>
+          <T>System.Management.Automation.CommandInfo</T>
+          <T>System.Object</T>
+        </TN>
+        <ToString>logger.ps1</ToString>
+        <Props>
+          <S N="Path">D:\github\OpenVPN_AD\corpvpn\logger.ps1</S>
+          <S N="Definition">D:\github\OpenVPN_AD\corpvpn\logger.ps1</S>
+          <S N="Source">D:\github\OpenVPN_AD\corpvpn\logger.ps1</S>
+          <S N="Visibility">Public</S>
+          <SBK N="ScriptBlock"># Logger include_x000D__x000A_$a = $MyInvocation_x000D__x000A_$a | export-clixml test.xml_x000D__x000A_$global:logfile = "scripts_log.txt"_x000D__x000A_$global:logfile_old = $logfile + '.old'_x000D__x000A_# Rotate Log file @ 2mb_x000D__x000A_if (Test-Path $logfile) {_x000D__x000A_    if ((Get-Item $logfile).length -ge 2mb) {_x000D__x000A_        Write-Host "Rotating log"_x000D__x000A_        Remove-Item $logfile_old -Force_x000D__x000A_        Rename-Item $logfile -newName $logfile_old_x000D__x000A_    }_x000D__x000A_}_x000D__x000A_if (!(Test-Path $logfile)) {_x000D__x000A_    Write-Host "Creating new log file"_x000D__x000A_    ("`r`nCorp VPN Scripts Log - " + [String](Get-Date)) | Out-File $logfile -force_x000D__x000A_    "---------------------------------------------" | Out-File $logfile -append_x000D__x000A_    "Date       Time     :: ScriptName :: Message" | Out-File $logfile -append_x000D__x000A_    "-------------------------------------------------------" | Out-File $logfile -append_x000D__x000A_}_x000D__x000A__x000D__x000A_function Write-Log {_x000D__x000A_    [CmdletBinding()]_x000D__x000A_    param (_x000D__x000A_        [string]$process = $MyInvocation.MyCommand.Name,_x000D__x000A_        [Parameter(position=0)][string]$message_x000D__x000A_    )_x000D__x000A_    $log_line = (Get-Date -format "dd-MM-yyyy HH:mm:ss") + ' :: ' + $process + ' :: ' + $message_x000D__x000A_    $log_line | Out-File $logfile -append -force_x000D__x000A_    Return $log_line_x000D__x000A_}</SBK>
+          <Obj N="OutputType" RefId="2">
+            <TN RefId="2">
+              <T>System.Collections.ObjectModel.ReadOnlyCollection`1[[System.Management.Automation.PSTypeName, System.Management.Automation, Version=7.3.4.500, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
+              <T>System.Object</T>
+            </TN>
+            <LST />
+          </Obj>
+          <S N="ScriptContents"># Logger include_x000D__x000A_$a = $MyInvocation_x000D__x000A_$a | export-clixml test.xml_x000D__x000A_$global:logfile = "scripts_log.txt"_x000D__x000A_$global:logfile_old = $logfile + '.old'_x000D__x000A_# Rotate Log file @ 2mb_x000D__x000A_if (Test-Path $logfile) {_x000D__x000A_    if ((Get-Item $logfile).length -ge 2mb) {_x000D__x000A_        Write-Host "Rotating log"_x000D__x000A_        Remove-Item $logfile_old -Force_x000D__x000A_        Rename-Item $logfile -newName $logfile_old_x000D__x000A_    }_x000D__x000A_}_x000D__x000A_if (!(Test-Path $logfile)) {_x000D__x000A_    Write-Host "Creating new log file"_x000D__x000A_    ("`r`nCorp VPN Scripts Log - " + [String](Get-Date)) | Out-File $logfile -force_x000D__x000A_    "---------------------------------------------" | Out-File $logfile -append_x000D__x000A_    "Date       Time     :: ScriptName :: Message" | Out-File $logfile -append_x000D__x000A_    "-------------------------------------------------------" | Out-File $logfile -append_x000D__x000A_}_x000D__x000A__x000D__x000A_function Write-Log {_x000D__x000A_    [CmdletBinding()]_x000D__x000A_    param (_x000D__x000A_        [string]$process = $MyInvocation.MyCommand.Name,_x000D__x000A_        [Parameter(position=0)][string]$message_x000D__x000A_    )_x000D__x000A_    $log_line = (Get-Date -format "dd-MM-yyyy HH:mm:ss") + ' :: ' + $process + ' :: ' + $message_x000D__x000A_    $log_line | Out-File $logfile -append -force_x000D__x000A_    Return $log_line_x000D__x000A_}</S>
+          <S N="OriginalEncoding">System.Text.UTF8Encoding</S>
+          <S N="Name">logger.ps1</S>
+          <S N="CommandType">ExternalScript</S>
+          <Nil N="Version" />
+          <S N="ModuleName"></S>
+          <Nil N="Module" />
+          <S N="RemotingCapability">PowerShell</S>
+          <Obj N="Parameters" RefId="3">
+            <TN RefId="3">
+              <T>System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib, Version=7.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Management.Automation.ParameterMetadata, System.Management.Automation, Version=7.3.4.500, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
+              <T>System.Object</T>
+            </TN>
+            <DCT />
+          </Obj>
+          <Obj N="ParameterSets" RefId="4">
+            <TN RefId="4">
+              <T>System.Collections.ObjectModel.ReadOnlyCollection`1[[System.Management.Automation.CommandParameterSetInfo, System.Management.Automation, Version=7.3.4.500, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
+              <T>System.Object</T>
+            </TN>
+            <LST>
+              <S></S>
+            </LST>
+          </Obj>
+        </Props>
+        <MS>
+          <S N="Namespace"></S>
+          <S N="HelpUri"></S>
+        </MS>
+      </Obj>
+      <Obj N="BoundParameters" RefId="5">
+        <TN RefId="5">
+          <T>System.Management.Automation.PSBoundParametersDictionary</T>
+          <T>System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib, Version=7.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Object, System.Private.CoreLib, Version=7.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]</T>
+          <T>System.Object</T>
+        </TN>
+        <DCT />
+      </Obj>
+      <Obj N="UnboundArguments" RefId="6">
+        <TN RefId="6">
+          <T>System.Collections.Generic.List`1[[System.Object, System.Private.CoreLib, Version=7.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]</T>
+          <T>System.Object</T>
+        </TN>
+        <LST />
+      </Obj>
+      <I32 N="ScriptLineNumber">1</I32>
+      <I32 N="OffsetInLine">1</I32>
+      <I64 N="HistoryId">38</I64>
+      <S N="ScriptName">D:\github\OpenVPN_AD\corpvpn\logtest.ps1</S>
+      <S N="Line">. .\logger.ps1_x000D__x000A_</S>
+      <S N="PositionMessage">At D:\github\OpenVPN_AD\corpvpn\logtest.ps1:1 char:1_x000D__x000A_+ . .\logger.ps1_x000D__x000A_+ ~~~~~~~~~~~~~~</S>
+      <S N="PSScriptRoot">D:\github\OpenVPN_AD\corpvpn</S>
+      <S N="PSCommandPath">D:\github\OpenVPN_AD\corpvpn\logtest.ps1</S>
+      <S N="InvocationName">.</S>
+      <I32 N="PipelineLength">1</I32>
+      <I32 N="PipelinePosition">1</I32>
+      <B N="ExpectingInput">false</B>
+      <Obj N="CommandOrigin" RefId="7">
+        <TN RefId="7">
+          <T>System.Management.Automation.CommandOrigin</T>
+          <T>System.Enum</T>
+          <T>System.ValueType</T>
+          <T>System.Object</T>
+        </TN>
+        <ToString>Internal</ToString>
+        <I32>1</I32>
+      </Obj>
+      <Nil N="DisplayScriptPosition" />
+    </Props>
+  </Obj>
+</Objs>
