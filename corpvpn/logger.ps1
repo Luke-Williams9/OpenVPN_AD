@@ -29,6 +29,6 @@ function Write-Log {
         [Parameter(position=0)][string]$message
     )
     $log_line = (Get-Date -format "dd-MM-yyyy HH:mm:ss") + ' :: ' + $process + ' :: ' + $message
-    $log_line | Out-File $logfile -append -force
+    $log_line | Out-File $logfile -encoding ASCII -append -force
     Return $log_line
 }
