@@ -26,7 +26,7 @@ if ($svc.StartType -eq 'Disabled') {
 $networkName = (Get-WmiObject Win32_NetworkAdapterConfiguration | Where-Object {$_.IPEnabled -eq $true -and $_.serviceName -notlike '*tap*'}).DNSDomain
 $ComputerDomain = (Get-WmiObject Win32_ComputerSystem).Domain
 Write-Log ("Computer Domain: " + $ComputerDomain )
-Write-Log ("LAN/Wifi Network DNSdomain: " + $networkName)
+Write-Log ("LAN/Wifi Domain: " + $networkName)
 
 if ($ComputerDomain -eq $networkName) {
     Write-Log ("They match - Computer is in contact with corp network. Stopping VPN service")
@@ -34,10 +34,9 @@ if ($ComputerDomain -eq $networkName) {
     Stop-Service 'OpenVPNservice'
 } else {
     # Computer is remote. Start VPN
-    Write-Host "They do not match. Computer is not on the corp network. Starting VPN service"
+    Write-Log "They do not match. Computer is not on the corp network. Starting VPN service"
     Start-Service 'OpenVPNservice'
 }
 Start-Sleep -Seconds 4
-$s = Get-Service 'OpenVPNService'
-Write-Log ("ServiceName: " + $s.Name + " | Status: " + $s.Status)
+Write-Log ($svc.Name + " status: " + $svc.Status)
 Write-Log "__IFUP End"

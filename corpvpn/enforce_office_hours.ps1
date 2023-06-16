@@ -170,6 +170,5 @@ if ($activateVPN -eq $true) {
 }
 
 Start-Sleep -Seconds 7
-$s = Get-Service 'OpenVPNService'
-Write-Log ("Service check | " + $svc.Name + " status: " + $svc.Status)
+Write-Log ($svc.Name + " status: " + $svc.Status)
 Write-Log "__Enforce Office Hours End"

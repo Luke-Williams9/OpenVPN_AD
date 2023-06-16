@@ -13,11 +13,12 @@
 $script:process = "generate_config"
 . .\logger.ps1
 Write-Log "__Generate OpenVPN Config Start"
-$s = Get-Service 'OpenVPNService'
-Write-Log ("Service check | " + $svc.Name + " status: " + $svc.Status)
+
+$svc = Get-Service 'OpenVPNService'
+Write-Log ($svc.Name + " status: " + $svc.Status)
 
 $startSvc = $false
-if ($s.status -eq 'Running') {
+if ($svc.status -eq 'Running') {
     $startSvc = $true
 }
 # Load variable parameters
@@ -133,16 +134,15 @@ Write-Log ("Saved configuration to " + $configFile_path + "`n")
 
 # OpenVPN service autostart
 Write-Log "Stopping OpenVPN service"
-Stop-Service 'OpenVPNService'
+$svc | Stop-Service
 Start-Sleep -Seconds 7
-$s = Get-Service 'OpenVPNService'
-Write-Log ("Service check | " + $svc.Name + " status: " + $svc.Status)
+Write-Log ($svc.Name + " status: " + $svc.Status)
 Write-Log "Triggering enforce office hours script"
 if ($startSvc) {
     Write-Log "Starting OpenVPN service"
-    Start-Service "OpenVPNService"
+    $svc | Start-Service
     Start-Sleep -seconds 2
-    Write-Log ("Service check | " + $svc.Name + " status: " + $svc.Status)
+    Write-Log ($svc.Name + " status: " + $svc.Status)
     Write-Log "Including -start param"
     & ".\enforce_office_hours.ps1" -start
 } else {
