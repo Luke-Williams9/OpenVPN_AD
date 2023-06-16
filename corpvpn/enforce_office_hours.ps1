@@ -1,6 +1,9 @@
 # https://www.alkanesolutions.co.uk/2016/05/13/use-adsi-to-check-if-a-user-is-a-member-of-an-ad-group/
 
 # This runs.... at 8am and 5pm? also when you try to connect manually?
+param (
+  [switch]$start
+)
 $script:process = "enforce"
 . .\logger.ps1
 function Get-LastUser () {
@@ -134,7 +137,8 @@ Write-Log ("ServiceName: " + $svc.Name + " | Status: " + $svc.Status)
 
 if ($activateVPN -eq $true ) {
   # Work Hours start
-  if ($svc.StartupType -eq 'Disabled') {
+  if (($svc.StartupType -eq 'Disabled') -or $start) {
+    Write-Log "-Start parameter specified"
     # Only modify / start service if its disabled. If its set to auto/manual then it may be off for a reason
     $svc | Set-Service -startupType "Manual"
     Write-Log "Invoking IFUP"

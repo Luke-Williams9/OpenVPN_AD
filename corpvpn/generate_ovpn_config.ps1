@@ -12,6 +12,10 @@
 #Start-Transcript -path '.\generate_ovpn_config.log.txt'
 $script:process = "generate_config"
 . .\logger.ps1
+$startSvc = $false
+if ((Get-Service 'OpenVPNservice').status = 'Running') {
+    $startSvc = $true
+}
 # Load variable parameters
 $var = Get-Content "config_params.json" | ConvertFrom-JSON
 
@@ -130,7 +134,13 @@ Start-Sleep -Seconds 7
 $s = Get-Service 'OpenVPNService'
 Write-Log ("ServiceName: " + $s.Name + " | Status: " + $s.Status)
 Write-Log "Triggering enforce office hours script"
-& ".\enforce_office_hours.ps1"
+if ($startSvc) {
+    Write-Log "Including -start param"
+    & ".\enforce_office_hours.ps1 -start" 
+} else {
+    & ".\enforce_office_hours.ps1" 
+}
+
 
 Write-Log "Generate OpenVPN Config End"
 #Stop-Transcript

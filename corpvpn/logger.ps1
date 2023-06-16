@@ -1,8 +1,8 @@
 # Logger include
 
-$global:logfile = "scripts_log.txt"
-$global:logfile_old = $logfile + '.old'
-$global:myPID = (100..999) | Get-Random
+$script:logfile = "scripts_log.txt"
+$script:logfile_old = $logfile + '.old'
+$script:myPID = (100..999) | Get-Random
 # Rotate Log file @ 2mb
 if (Test-Path $logfile) {
     if ((Get-Item $logfile).length -ge 2mb) {
