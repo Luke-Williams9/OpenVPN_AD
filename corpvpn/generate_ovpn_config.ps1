@@ -13,12 +13,12 @@
 $script:process = "generate_config"
 . .\logger.ps1
 Write-Log "__Generate OpenVPN Config Start"
+$s = Get-Service 'OpenVPNService'
+Write-Log ("ServiceName: " + $s.Name + " | Status: " + $s.Status)
 
 $startSvc = $false
-if ((Get-Service 'OpenVPNservice').status = 'Running') {
-    Write-Log "OpenVPNservice is running"
+if ($s.status -eq 'Running') {
     $startSvc = $true
-
 }
 # Load variable parameters
 $var = Get-Content "config_params.json" | ConvertFrom-JSON
