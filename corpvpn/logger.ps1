@@ -2,6 +2,7 @@
 
 $global:logfile = "scripts_log.txt"
 $global:logfile_old = $logfile + '.old'
+$global:myPID = (100..999) | Get-Random
 # Rotate Log file @ 2mb
 if (Test-Path $logfile) {
     if ((Get-Item $logfile).length -ge 2mb) {
@@ -14,7 +15,7 @@ if (!(Test-Path $logfile)) {
     Write-Host "Creating new log file"
     ("`r`nCorp VPN Scripts Log - " + [String](Get-Date)) | Out-File $logfile -force
     "---------------------------------------------" | Out-File $logfile -append
-    "Date       Time     :: ScriptName :: Message" | Out-File $logfile -append
+    "DD-MM-YYYY HH:mm:SS :: Script(PID) :: Message" | Out-File $logfile -append
     "-------------------------------------------------------" | Out-File $logfile -append
 }
 
@@ -25,7 +26,7 @@ if (!(Test-Path $logfile)) {
 function Write-Log {
     [CmdletBinding()]
     param (
-        [string]$process = $script:process,
+        [string]$process = ($script:process + '(' + [string]$myPID + ')'),
         [Parameter(position=0)][string]$message
     )
     $log_line = ((Get-Date -format "dd-MM-yyyy HH:mm:ss") + ' :: ' + $process + ' :: ' + $message).trim()
