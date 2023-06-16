@@ -19,9 +19,9 @@ if (!(Test-Path $logfile)) {
 }
 
 # Must define $script:process before dot sourcing this script
-if ($script:process -in '',$null) {
-    $script:process = 'unknown'
-}
+#if ($script:process -in '',$null) {
+#    $script:process = 'unknown'
+#}
 function Write-Log {
     [CmdletBinding()]
     param (

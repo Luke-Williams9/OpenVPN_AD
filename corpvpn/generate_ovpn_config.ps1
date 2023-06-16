@@ -10,7 +10,8 @@
 #>
 
 #Start-Transcript -path '.\generate_ovpn_config.log.txt'
-
+$script:process = "generate_config"
+. .\logger.ps1
 # Load variable parameters
 $var = Get-Content "config_params.json" | ConvertFrom-JSON
 

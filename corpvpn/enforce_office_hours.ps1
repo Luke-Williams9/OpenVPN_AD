@@ -1,6 +1,7 @@
 # https://www.alkanesolutions.co.uk/2016/05/13/use-adsi-to-check-if-a-user-is-a-member-of-an-ad-group/
 
 # This runs.... at 8am and 5pm? also when you try to connect manually?
+$script:process = "enforce"
 . .\logger.ps1
 function Get-LastUser () {
   [cmdletbinding()]

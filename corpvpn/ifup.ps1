@@ -13,6 +13,7 @@
     Source: NetworkProfile
     ID: 10000
 #>
+$script:process = "ifup"
 . .\logger.ps1
 $svc = Get-Service OpenVPNservice
 Write-Log "IFUP Start"

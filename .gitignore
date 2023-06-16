@@ -1,3 +1,5 @@
 **/tg_conf.ps1
-**/corpvpn/static.key
 **/vpn.zip
+**/corpvpn/scripts_log.txt
+**/corpvpn/logtest.ps1
+**/corpvpn/static.key
