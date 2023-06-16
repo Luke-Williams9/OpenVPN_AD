@@ -1,4 +1,14 @@
-# https://www.alkanesolutions.co.uk/2016/05/13/use-adsi-to-check-if-a-user-is-a-member-of-an-ad-group/
+<#
+    OpenVPN Office hours enforcement
+    By Luke Williams
+    
+    Version 0.6
+
+    This script checks if the current users is in a 24x7 users security group. 
+    If not, then it disables the VPN service outside of business hours.
+
+    https://www.alkanesolutions.co.uk/2016/05/13/use-adsi-to-check-if-a-user-is-a-member-of-an-ad-group/
+#>
 
 # This runs.... at 8am and 5pm? also when you try to connect manually?
 param (
@@ -135,7 +145,7 @@ if ($isDomainAdmin -or $is24x7) {
 Write-Log ("ActivateVPN: $activateVPN")
 
 $svc = Get-Service 'OpenVPNService'
-Write-Log ("ServiceName: " + $svc.Name + " | Status: " + $svc.Status)
+Write-Log ("Service check | " + $svc.Name + " status: " + $svc.Status)
 
 if ($activateVPN -eq $true) {
   # Work Hours start
@@ -161,5 +171,5 @@ if ($activateVPN -eq $true) {
 
 Start-Sleep -Seconds 7
 $s = Get-Service 'OpenVPNService'
-Write-Log ("ServiceName: " + $s.Name + " | Status: " + $s.Status)
+Write-Log ("Service check | " + $svc.Name + " status: " + $svc.Status)
 Write-Log "__Enforce Office Hours End"

@@ -2,7 +2,7 @@
     OpenVPN configuration file generator for Tlicho Government AD-integrated VPN
     By Luke Williams
     
-    Version 0.4
+    Version 0.6
 
     This script generates a new OpenVPN configuration for the current AD user
     The certificate it uses is issued by TGs issuing CA, to any AD users who are part of the SG-OpenVPNusers group.
@@ -14,7 +14,7 @@ $script:process = "generate_config"
 . .\logger.ps1
 Write-Log "__Generate OpenVPN Config Start"
 $s = Get-Service 'OpenVPNService'
-Write-Log ("ServiceName: " + $s.Name + " | Status: " + $s.Status)
+Write-Log ("Service check | " + $svc.Name + " status: " + $svc.Status)
 
 $startSvc = $false
 if ($s.status -eq 'Running') {
@@ -136,15 +136,15 @@ Write-Log "Stopping OpenVPN service"
 Stop-Service 'OpenVPNService'
 Start-Sleep -Seconds 7
 $s = Get-Service 'OpenVPNService'
-Write-Log ("ServiceName: " + $s.Name + " | Status: " + $s.Status)
+Write-Log ("Service check | " + $svc.Name + " status: " + $svc.Status)
 Write-Log "Triggering enforce office hours script"
 if ($startSvc) {
     Write-Log "Starting OpenVPN service"
     Start-Service "OpenVPNService"
     Start-Sleep -seconds 2
-    Write-Log ("ServiceName: " + $s.Name + " | Status: " + $s.Status)
+    Write-Log ("Service check | " + $svc.Name + " status: " + $svc.Status)
     Write-Log "Including -start param"
-    & ".\enforce_office_hours.ps1 -start" 
+    & ".\enforce_office_hours.ps1" -start
 } else {
     Write-Log "Not including -start param"
     & ".\enforce_office_hours.ps1" 
