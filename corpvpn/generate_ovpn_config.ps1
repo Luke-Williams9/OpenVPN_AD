@@ -108,7 +108,9 @@ Write-Log ("Saved CA certificate to " + $ca_file)
 $conf.thumbprint = ($cert.Thumbprint -replace '([0-9a-f]{2})', '$1 ').ToLower().trim()
 
 Write-Output ("Client certificate: `n" + ($cert | Select-Object Subject, Issuer, Thumbprint, FriendlyName, NotBefore, NotAfter, EnhancedKeyUsageList| Format-List | Out-String))
-Write-Log ('Using Client certifiace "' + $cert.Subject + '" with thumbprint "' + $cert.Thumbprint + '"')
+Write-Log ('Using Client certificate "' + $cert.Subject + '"')
+Write-Log ('certifcate thumbprint: ' + $cert.Thumbprint)
+
 # Loop through conf, and replace parameters in configFile
 foreach ($k in $conf.keys) {
     $search = "<<" + $k + ">>"
