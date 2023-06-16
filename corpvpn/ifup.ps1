@@ -16,7 +16,7 @@
 $script:process = "ifup"
 . .\logger.ps1
 $svc = Get-Service OpenVPNservice
-Write-Log "IFUP Start"
+Write-Log "__IFUP Start"
 if ($svc.StartType -eq 'Disabled') {
     Write-Log "OpenVPN service is disabled when not on work hours. Nothing to do here"
     exit 0
@@ -38,4 +38,4 @@ if ($ComputerDomain -eq $networkName) {
 Start-Sleep -Seconds 7
 $s = Get-Service 'OpenVPNService'
 Write-Log ("ServiceName: " + $s.Name + " | Status: " + $s.Status)
-Write-Log "IFUP End"
+Write-Log "__IFUP End"

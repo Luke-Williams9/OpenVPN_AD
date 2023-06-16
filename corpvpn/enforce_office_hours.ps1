@@ -2,7 +2,7 @@
 
 # This runs.... at 8am and 5pm? also when you try to connect manually?
 param (
-  [switch]$start
+  [switch]$start = $false
 )
 $script:process = "enforce"
 . .\logger.ps1
@@ -80,7 +80,9 @@ function Get-LastUser () {
     SID = $LastUserSID
   }
 }
-Write-Log "Enforce Hours Start"
+Write-Log "__Enforce Hours Start"
+
+Write-Log ("Start parameter: " + [string]$start)
 
 $install_path = "$env:programData\corpvpn"
 $global:conf = Get-Content "$install_path\config_params.json" | ConvertFrom-JSON
@@ -135,11 +137,17 @@ Write-Log ("ActivateVPN: $activateVPN")
 $svc = Get-Service 'OpenVPNService'
 Write-Log ("ServiceName: " + $svc.Name + " | Status: " + $svc.Status)
 
-if ($activateVPN -eq $true ) {
+if ($activateVPN -eq $true) {
   # Work Hours start
-  if (($svc.StartupType -eq 'Disabled') -or $start) {
-    Write-Log "-Start parameter specified"
-    # Only modify / start service if its disabled. If its set to auto/manual then it may be off for a reason
+
+  if ($svc.StartupType -eq 'Disabled') {
+    # If the service is disabled, then we are enabling it here because we are within allowed office hours
+    Write-Log "VPN service was disabled. Enabling..."
+    $svc | Set-Service -startupType "Manual"
+    $start = $true
+  }
+  if ($start -eq $true) {
+    # if $start has been set to $true, by the above block, or by the param, then we'll start the service. This way we are avoiding starting the VPN if it has been turned off for a reason
     $svc | Set-Service -startupType "Manual"
     Write-Log "Invoking IFUP"
     & "$install_path\ifup.ps1" # instead of starting the service, run ifup.ps1, which will start it only if they are remote
@@ -154,4 +162,4 @@ if ($activateVPN -eq $true ) {
 Start-Sleep -Seconds 7
 $s = Get-Service 'OpenVPNService'
 Write-Log ("ServiceName: " + $s.Name + " | Status: " + $s.Status)
-Write-Log "Enforce Office Hours End"
+Write-Log "__Enforce Office Hours End"
