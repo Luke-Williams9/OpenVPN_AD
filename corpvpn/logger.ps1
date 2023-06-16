@@ -28,7 +28,7 @@ function Write-Log {
         [string]$process = $script:process,
         [Parameter(position=0)][string]$message
     )
-    $log_line = (Get-Date -format "dd-MM-yyyy HH:mm:ss") + ' :: ' + $process + ' :: ' + $message
-    $log_line | Out-File $logfile -encoding ASCII -append -force
+    $log_line = ((Get-Date -format "dd-MM-yyyy HH:mm:ss") + ' :: ' + $process + ' :: ' + $message).trim()
+    $log_line | Out-File $logfile -append -force
     Return $log_line
 }
