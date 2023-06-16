@@ -4,7 +4,7 @@
     test if computer is on domain network or not
     By Luke Williams
     
-    Version 0.2
+    Version 0.3
 
     to disable VPN when computer is on the TG network, create a scheduled task
     https://www.groovypost.com/howto/automatically-run-script-on-internet-connect-network-connection-drop/
@@ -13,9 +13,11 @@
     Source: NetworkProfile
     ID: 10000
 #>
+. .\logger.ps1
 $svc = Get-Service OpenVPNservice
+Write-Log "IFUP Start"
 if ($svc.StartType -eq 'Disabled') {
-    # Service will be disabled when not on work hours. Nothing to do here
+    Write-Log "OpenVPN service is disabled when not on work hours. Nothing to do here"
     exit 0
 }
 
@@ -24,9 +26,15 @@ $networkName = (Get-WmiObject Win32_NetworkAdapterConfiguration | Where-Object {
 $ComputerDomain = (Get-WmiObject Win32_ComputerSystem).Domain
 
 if ($ComputerDomain -eq $networkName) {
+    Write-Log ("Computers domain and Network DNSdomain both = " + $ComputerDomain + " - Computer is in contact with corp network. Stopping OpenVPNservice")
     # Computer is connected to domain/office network, has local access to network resources. Stop OpenVPN service
-    Stop-Service OpenVPNservice
+    Stop-Service 'OpenVPNservice'
 } else {
     # Computer is remote. Start VPN
-    Start-Service OpenVPNservice
+    Write-Log ("Computer domain: " )
+    Start-Service 'OpenVPNservice'
 }
+Start-Sleep -Seconds 7
+$s = Get-Service 'OpenVPNService'
+Write-Log ("ServiceName: " + $s.Name + " | Status: " + $s.Status)
+Write-Log "IFUP End"

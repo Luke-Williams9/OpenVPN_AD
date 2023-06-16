@@ -1,6 +1,7 @@
 # https://www.alkanesolutions.co.uk/2016/05/13/use-adsi-to-check-if-a-user-is-a-member-of-an-ad-group/
 
 # This runs.... at 8am and 5pm? also when you try to connect manually?
+. .\logger.ps1
 function Get-LastUser () {
   [cmdletbinding()]
   Param ()
@@ -75,12 +76,14 @@ function Get-LastUser () {
     SID = $LastUserSID
   }
 }
+Write-Log "Enforce Hours Start"
 
 $install_path = "$env:programData\corpvpn"
 $global:conf = Get-Content "$install_path\config_params.json" | ConvertFrom-JSON
 
 $userName = (Get-LastUser).user
 
+Write-Log "Last user logged into computer: $userName"
 
 # Try to query the AD for live user info, then save it for later
 Try {
@@ -90,24 +93,25 @@ Try {
     data = $userObj
   }
   $out | Export-CLIXML "$install_path\usercached.xml"
-  Write-Host "Using live user info"
+  Write-Log "Querying live user info from domain"
 }
 # If failed, then load the most recent user info
 Catch {
   $userObj = (Import-CLIXML "$install_path\usercached.xml").data
-  Write-Host "Using cached user info"
+  Write-Log "Using cached user info"
 }
-$userObj | Format-List
+Write-Log ('SAMaccountName of user queried from AD: ' + $userObj.properties.samaccountname)
 
 # a couple Boolean values
 $isDomainAdmin = (($userObj.properties.memberof -match 'CN=Domain Admins').length -gt 0)
 $is24x7        = (($userObj.properties.memberof -match ('CN=' + $conf.adgroup)).length -gt 0)
 
+Write-Log ('Is user domain admin? ' + [string]$isDomainAdmin)
+Write-Log ('User allowed 24x7 access? ' + [string]$is24x7)
 $activateVPN = $false
 if ($isDomainAdmin -or $is24x7) {
   # VPN always active for domain admins or 24x7 users
   $activateVPN = $true
-  Write-Host "User VPN is not limited to work hours"
 } else {
   $t_start = [DateTime]$conf.time_start
   $t_end   = [DateTime]$conf.time_end
@@ -122,20 +126,27 @@ if ($isDomainAdmin -or $is24x7) {
     }
   }
 }
+Write-Log ("ActivateVPN: $activateVPN")
 
-$svc = Get-Service "OpenVPNService"
+$svc = Get-Service 'OpenVPNService'
+Write-Log ("ServiceName: " + $svc.Name + " | Status: " + $svc.Status)
 
 if ($activateVPN -eq $true ) {
   # Work Hours start
   if ($svc.StartupType -eq 'Disabled') {
     # Only modify / start service if its disabled. If its set to auto/manual then it may be off for a reason
     $svc | Set-Service -startupType "Manual"
+    Write-Log "Invoking IFUP"
     & "$install_path\ifup.ps1" # instead of starting the service, run ifup.ps1, which will start it only if they are remote
-    
   }
 } else {
+  Write-Log ("Work Hours end. Disabling VPN")
   # Work Hours end
   $svc | Stop-Service
   $svc | Set-Service -startupType "Disabled"
 }
 
+Start-Sleep -Seconds 7
+$s = Get-Service 'OpenVPNService'
+Write-Log ("ServiceName: " + $s.Name + " | Status: " + $s.Status)
+Write-Log "Enforce Office Hours End"

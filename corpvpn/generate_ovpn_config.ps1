@@ -9,14 +9,15 @@
     The certificates have a shorter renewal time (ie less than a year) so this script will need to run periodically to update the openVPN configuration.
 #>
 
-Start-Transcript -path '.\generate_ovpn_config.log.txt'
+#Start-Transcript -path '.\generate_ovpn_config.log.txt'
 
 # Load variable parameters
 $var = Get-Content "config_params.json" | ConvertFrom-JSON
 
+Write-Log "Generate OpenVPN Config Start"
 
-Write-Output ("Root CA:    " + $var.rootCA)
-Write-Output ("Issuing CA: " + $var.ca)
+Write-Log ("Root CA:    " + $var.rootCA)
+Write-Log ("Issuing CA: " + $var.ca)
 
 # File Names
 $file_ovpn = $var.configName + '.ovpn'
@@ -39,18 +40,18 @@ $configFile = Get-Content 'config.ovpn.template'
 $static_key = Get-Content 'static.key'
 
 # Get the CA Cert, error out if not present
-Write-Output ("Looking for CA certificate for " + $var.rootCA)
+Write-Log ("Looking for CA certificate for " + $var.rootCA)
 $ca_cert = Get-ChildItem -path cert:\LocalMachine\Root | Where-Object Subject -match $var.rootCA
 if (!($ca_cert)) {
-    Write-Error "No CA found - Cannot continue"
+    Write-Log "No CA found - Cannot continue"
     Exit 1
 }
-Write-Output "Found!"
+Write-Log "Found!"
 
 # $myFQDN = ([System.Net.Dns]::GetHostByName($env:computerName)).HostName
 $myFQDN = $env:computerName
 # Get the thumbprint for the certificate issued by $var.ca, error out if not present
-Write-Output ("Looking for Client Authentication certificate, issued from " + $var.ca)
+Write-Log ("Looking for Client Authentication certificate, issued from " + $var.ca)
 $cert = Get-ChildItem -path cert:\LocalMachine\My | Where-Object {
     ($_.issuer -match $var.ca) `
     -and ($var.ekuName -in $_.EnhancedKeyUsageList.FriendlyName) `
@@ -60,10 +61,10 @@ $cert = Get-ChildItem -path cert:\LocalMachine\My | Where-Object {
 } | Sort-Object -property NotAfter | Select-Object -last 1
 
 if (!($cert)) {
-    Write-Error "None found, cannot continue"
+    Write-Log "No certificate found, cannot continue"
     Exit 1
 }
-Write-Output "Found!"
+Write-Log "Found!"
 
 # Create config folder
 $basePath = "$env:ProgramFiles\OpenVPN\config-auto\"
@@ -76,13 +77,12 @@ if (!(Test-Path $basePath)) {
     }
     New-Item @dirsplat
 }
-Write-Output ("Config path: " + $basePath)
+Write-Log ("Config path: " + $basePath)
 
 # Save Static Key
 $static_key_path = $basePath + $conf.file_key
-Write-Output ("Static key from OpenVPN server configuration: `n" + $static_key + "`n`n")
 $static_key | Out-File $static_key_path -encoding ascii
-Write-Output ("Saved to " + $static_key_path)
+Write-Log ("Saved static key to " + $static_key_path)
 
 # Save CA Certificate
 $fff = [System.Convert]::ToBase64String($ca_cert.RawData)
@@ -100,14 +100,14 @@ $ca_file = $basePath + $conf.file_ca
 Write-Output ("CA Certificate: `n" + $ca_b64 + "`n`n")
 
 $ca_b64 | Out-File $ca_file -encoding ascii
-Write-Output ("Saved to " + $ca_file)
+Write-Log ("Saved CA certificate to " + $ca_file)
 
 
 # Generate ovpn-readable client cert thumbprint
 $conf.thumbprint = ($cert.Thumbprint -replace '([0-9a-f]{2})', '$1 ').ToLower().trim()
 
 Write-Output ("Client certificate: `n" + ($cert | Select-Object Subject, Issuer, Thumbprint, FriendlyName, NotBefore, NotAfter, EnhancedKeyUsageList| Format-List | Out-String))
-
+Write-Log ('Using Client certifiace "' + $cert.Subject + '" with thumbprint "' + $cert.Thumbprint + '"')
 # Loop through conf, and replace parameters in configFile
 foreach ($k in $conf.keys) {
     $search = "<<" + $k + ">>"
@@ -118,10 +118,16 @@ foreach ($k in $conf.keys) {
 Write-Output ("Configuration:`n" + $configFile + "`n`n")
 $configFile_path = $basePath + $file_ovpn
 $configFile | Out-File $configFile_path  -encoding ascii
-Write-Output ("Saved to " + $configFile_path + "`n")
+Write-Log ("Saved configuration to " + $configFile_path + "`n")
 
 # OpenVPN service autostart
-Get-Service OpenVPNService | Stop-Service
+Write-Log "Stopping OpenVPN service"
+Stop-Service 'OpenVPNService'
+Start-Sleep -Seconds 7
+$s = Get-Service 'OpenVPNService'
+Write-Log ("ServiceName: " + $s.Name + " | Status: " + $s.Status)
+Write-Log "Triggering enforce office hours script"
 & ".\enforce_office_hours.ps1"
 
-Stop-Transcript
+Write-Log "Generate OpenVPN Config End"
+#Stop-Transcript
