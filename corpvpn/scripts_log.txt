@@ -9,3 +9,4 @@ Date       Time     :: ScriptName :: Message
 15-06-2023 17:24:55 :: Write-Log :: hello
 15-06-2023 17:25:17 :: Write-Log :: hello
 15-06-2023 17:30:06 :: logtest :: hello
+15-06-2023 18:11:29 :: logtesteee :: hello

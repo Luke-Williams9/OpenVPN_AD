@@ -1,6 +1,5 @@
 # Logger include
-$a = $MyInvocation.ScriptName.split('\')
-$global:parent = $a[$a.count-1].split('.')[0]
+
 $global:logfile = "scripts_log.txt"
 $global:logfile_old = $logfile + '.old'
 # Rotate Log file @ 2mb
@@ -19,10 +18,14 @@ if (!(Test-Path $logfile)) {
     "-------------------------------------------------------" | Out-File $logfile -append
 }
 
+# Must define $script:process before dot sourcing this script
+if ($script:process -in '',$null) {
+    $script:process = 'unknown'
+}
 function Write-Log {
     [CmdletBinding()]
     param (
-        [string]$process = $parent,
+        [string]$process = $script:process,
         [Parameter(position=0)][string]$message
     )
     $log_line = (Get-Date -format "dd-MM-yyyy HH:mm:ss") + ' :: ' + $process + ' :: ' + $message
