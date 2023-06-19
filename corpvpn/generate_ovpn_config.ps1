@@ -2,7 +2,7 @@
     OpenVPN configuration file generator for Tlicho Government AD-integrated VPN
     By Luke Williams
     
-    Version 0.6
+    Version 0.7
 
     This script generates a new OpenVPN configuration for the current AD user
     The certificate it uses is issued by TGs issuing CA, to any AD users who are part of the SG-OpenVPNusers group.
@@ -83,7 +83,7 @@ if (!(Test-Path $basePath)) {
 Write-Log ("Config path: " + $basePath)
 
 # Save Static Key
-$static_key_path = $basePath + $conf.file_key
+$static_key_path = $basePath + $params.file_key
 $static_key | Out-File $static_key_path -encoding ascii
 Write-Log ("Saved static key to " + $static_key_path)
 
@@ -99,7 +99,7 @@ for ($i = 0; $i -lt $fff.length; $i += 64) {
     }
 }
 $ca_b64 = ("-----BEGIN CERTIFICATE-----`r`n" + $ca_newlines + "-----END CERTIFICATE-----") 
-$ca_file = $basePath + $conf.file_ca
+$ca_file = $basePath + $params.file_ca
 Write-Output ("CA Certificate: `n" + $ca_b64 + "`n`n")
 
 $ca_b64 | Out-File $ca_file -encoding ascii
@@ -107,7 +107,7 @@ Write-Log ("Saved CA certificate to " + $ca_file)
 
 
 # Generate ovpn-readable client cert thumbprint
-$conf.thumbprint = ($cert.Thumbprint -replace '([0-9a-f]{2})', '$1 ').ToLower().trim()
+$params.thumbprint = ($cert.Thumbprint -replace '([0-9a-f]{2})', '$1 ').ToLower().trim()
 
 Write-Output ("Client certificate: `n" + ($cert | Select-Object Subject, Issuer, Thumbprint, FriendlyName, NotBefore, NotAfter, EnhancedKeyUsageList| Format-List | Out-String))
 Write-Log ('Using Client certificate "' + $cert.Subject + '"')
@@ -135,7 +135,7 @@ $svc | Start-Service
 Start-Sleep -seconds 2
 Write-Log ($svc.Name + " status: " + $svc.Status)
 Write-Log "Triggering enforce office hours script"
-& ".\enforce_office_hours.ps1"
+& ".\enforce_office_hours.ps1" -Bootstrap
 
 Write-Log "__Generate OpenVPN Config End"
 #Stop-Transcript

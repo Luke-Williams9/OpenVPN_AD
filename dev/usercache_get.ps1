@@ -39,5 +39,5 @@ Catch {
 Write-Log ('SAMaccountName of user queried from AD: ' + $userObj.properties.samaccountname)
 
 # a couple Boolean values
-$isDomainAdmin = (($userObj.properties.memberof -match 'CN=Domain Admins').length -gt 0)
-$is24x7        = (($userObj.properties.memberof -match ('CN=' + $conf.adgroup)).length -gt 0)
+#$isDomainAdmin = (($userObj.properties.memberof -match 'CN=Domain Admins').length -gt 0)
+#$is24x7        = (($userObj.properties.memberof -match ('CN=' + $conf.adgroup)).length -gt 0)

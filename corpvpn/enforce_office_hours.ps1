@@ -2,7 +2,7 @@
     OpenVPN Office hours enforcement
     By Luke Williams
     
-    Version 0.6
+    Version 0.7
 
     This script checks if the current users is in a 24x7 users security group. 
     If not, then it disables the VPN service outside of business hours.
@@ -11,7 +11,9 @@
 #>
 
 # This runs.... at 8am and 5pm? also when you try to connect manually?
-
+param (
+  [switch]$bootstrap # Start VPN first, to query AD about the last user
+)
 $script:process = "enforce"
 . .\_logger.ps1
 . .\_lastuser.ps1
@@ -28,16 +30,15 @@ If (Test-Path $cache) {
   $users = @()
 }
 
+if ($bootstrap) {
+  Write-Log "Bootstrap param specified. Starting OpenVPN service to query user info from AD"
+  $svc | Set-Service -startuptype Manual 
+  $svc | Start-Service
+  Start-Sleep -seconds 2
+  Write-Log ("Service check | " + $svc.Name + " status: " + $svc.Status)
+}
 
-<#
-$domain = ([System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()).ToString()
-$netbiosDomainName = (Get-WmiObject -Class Win32_NTDomain | Where-Object {$_.DomainName -eq $domain}).Name
 
-
-$domain = (Get-WMIobject -Class Win32_ComputerSystem).domain
-(Get-WmiObject -Class Win32_NTDomain -Filter ("DNSforestName='" + $domain + "'")).DomainName
-#>
-# Try to query the AD for live user info, then save it for later
 $lastUser = Get-LastUser
 $userName = $lastUser.user
 Write-Log ('Last User: ' + $userName)
@@ -51,8 +52,9 @@ if ($lastUser.accountType -ne 'Domain') {
 }
 
 Try {
+  Write-Log "Trying live ADSI query"
   $userObj = ([ADSISearcher] "(&(objectCategory=person)(objectClass=user)(sAMAccountName=$userName))").FindOne()
-  Write-Log "Querying live user info from domain"
+  Write-Log ("Result: " + $userObj | Select-Object *)
   $result = @{
     timestamp = Get-Date
     data = $userObj
@@ -74,6 +76,7 @@ Try {
 }
 # If failed, then load the most recent user info
 Catch {
+  Write-Log "ADSI query failed. Checking local user cache"
   $u = $users | Where-Object {$_.Data.Properties.samaccountname -eq $userName}
   if ($u) {
     Write-Log "Using cached user info"
