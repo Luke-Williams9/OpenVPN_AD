@@ -26,7 +26,7 @@ Write-Log ("Issuing CA: " + $conf.ca)
 $file_ovpn = $conf.configName + '.ovpn'
 
 # Parameters to replace in the config file
-$conf = @{
+$params = @{
     remoteIP = $conf.remoteIP
     remotePort = $conf.remotePort
     x509 = $conf.x509
@@ -114,9 +114,9 @@ Write-Log ('Using Client certificate "' + $cert.Subject + '"')
 Write-Log ('certifcate thumbprint: ' + $cert.Thumbprint)
 
 # Loop through conf, and replace parameters in configFile
-foreach ($k in $conf.keys) {
+foreach ($k in $params.keys) {
     $search = "<<" + $k + ">>"
-    $configFile = $configFile.replace($search,$conf.$k)
+    $configFile = $configFile.replace($search,$params.$k)
 }
 
 
