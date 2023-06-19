@@ -11,34 +11,27 @@
 
 #Start-Transcript -path '.\generate_ovpn_config.log.txt'
 $script:process = "generate_config"
-. .\logger.ps1
+. .\_logger.ps1
+. .\_config.ps1
+
 Write-Log "__Generate OpenVPN Config Start"
 
 $svc = Get-Service 'OpenVPNService'
 Write-Log ($svc.Name + " status: " + $svc.Status)
 
-$startSvc = $false
-if ($svc.status -eq 'Running') {
-    $startSvc = $true
-}
-# Load variable parameters
-$var = Get-Content "config_params.json" | ConvertFrom-JSON
-
-
-
-Write-Log ("Root CA:    " + $var.rootCA)
-Write-Log ("Issuing CA: " + $var.ca)
+Write-Log ("Root CA:    " + $conf.rootCA)
+Write-Log ("Issuing CA: " + $conf.ca)
 
 # File Names
-$file_ovpn = $var.configName + '.ovpn'
+$file_ovpn = $conf.configName + '.ovpn'
 
 # Parameters to replace in the config file
 $conf = @{
-    remoteIP = $var.remoteIP
-    remotePort = $var.remotePort
-    x509 = $var.x509
-    file_ca = $var.rootCA + '.crt'
-    file_key = $var.configName + '-tls.key'
+    remoteIP = $conf.remoteIP
+    remotePort = $conf.remotePort
+    x509 = $conf.x509
+    file_ca = $conf.rootCA + '.crt'
+    file_key = $conf.configName + '-tls.key'
     thumbprint = ''
 }
 
@@ -50,8 +43,8 @@ $configFile = Get-Content 'config.ovpn.template'
 $static_key = Get-Content 'static.key'
 
 # Get the CA Cert, error out if not present
-Write-Log ("Looking for CA certificate for " + $var.rootCA)
-$ca_cert = Get-ChildItem -path cert:\LocalMachine\Root | Where-Object Subject -match $var.rootCA
+Write-Log ("Looking for CA certificate for " + $conf.rootCA)
+$ca_cert = Get-ChildItem -path cert:\LocalMachine\Root | Where-Object Subject -match $conf.rootCA
 if (!($ca_cert)) {
     Write-Log "No CA found - Cannot continue"
     Exit 1
@@ -60,11 +53,11 @@ Write-Log "Found!"
 
 # $myFQDN = ([System.Net.Dns]::GetHostByName($env:computerName)).HostName
 $myFQDN = $env:computerName
-# Get the thumbprint for the certificate issued by $var.ca, error out if not present
-Write-Log ("Looking for Client Authentication certificate, issued from " + $var.ca)
+# Get the thumbprint for the certificate issued by $conf.ca, error out if not present
+Write-Log ("Looking for Client Authentication certificate, issued from " + $conf.ca)
 $cert = Get-ChildItem -path cert:\LocalMachine\My | Where-Object {
-    ($_.issuer -match $var.ca) `
-    -and ($var.ekuName -in $_.EnhancedKeyUsageList.FriendlyName) `
+    ($_.issuer -match $conf.ca) `
+    -and ($conf.ekuName -in $_.EnhancedKeyUsageList.FriendlyName) `
     -and ((Get-Date) -gt $_.notBefore) `
     -and ((Get-Date) -lt $_.notAfter) `
     -and $_.Subject -like "*$myFQDN*"
@@ -137,19 +130,12 @@ Write-Log "Stopping OpenVPN service"
 $svc | Stop-Service
 Start-Sleep -Seconds 7
 Write-Log ($svc.Name + " status: " + $svc.Status)
+Write-Log "Starting OpenVPN service"
+$svc | Start-Service
+Start-Sleep -seconds 2
+Write-Log ($svc.Name + " status: " + $svc.Status)
 Write-Log "Triggering enforce office hours script"
-if ($startSvc) {
-    Write-Log "Starting OpenVPN service"
-    $svc | Start-Service
-    Start-Sleep -seconds 2
-    Write-Log ($svc.Name + " status: " + $svc.Status)
-    Write-Log "Including -start param"
-    & ".\enforce_office_hours.ps1" -start
-} else {
-    Write-Log "Not including -start param"
-    & ".\enforce_office_hours.ps1" 
-}
-
+& ".\enforce_office_hours.ps1"
 
 Write-Log "__Generate OpenVPN Config End"
 #Stop-Transcript

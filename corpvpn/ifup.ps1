@@ -14,7 +14,7 @@
     ID: 10000
 #>
 $script:process = "ifup"
-. .\logger.ps1
+. .\_logger.ps1
 $svc = Get-Service OpenVPNservice
 Write-Log "__IFUP Start"
 if ($svc.StartType -eq 'Disabled') {
