@@ -14,7 +14,7 @@ function Get-LastUser () {
         $domainDNSname = ''
       } else {
         # any nonzero domain role means the computer is part of a domain
-        $NetBIOSname = ([ADSI]('LDAP://' + $cim.Domain)).dc
+        $NetBIOSname = $env:userdomain
         $domainDNSname = $cim.Domain
       }
       # Parse $userProfileName - for domain users it needs to be in the format "domain\username", for local accounts, it needs to be "computername\username"... or it can be a UPN / email address
