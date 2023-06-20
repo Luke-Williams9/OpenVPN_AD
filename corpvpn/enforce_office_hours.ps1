@@ -34,8 +34,8 @@ if ($bootstrap) {
   Write-Log "Bootstrap param specified. Starting OpenVPN service to query user info from AD"
   $svc | Set-Service -startuptype Manual 
   $svc | Start-Service
-  Start-Sleep -seconds 2
   Write-Log ("Service check | " + $svc.Name + " status: " + $svc.Status)
+  Start-Sleep -seconds 5
 }
 
 
@@ -51,16 +51,29 @@ if ($lastUser.accountType -ne 'Domain') {
   Exit 0
 }
 
-Try {
-  Write-Log ("Service check | " + $svc.Name + " status: " + $svc.Status)
-  Write-Log "Trying live ADSI query"
-  $userObj = ([ADSISearcher] "(&(objectCategory=person)(objectClass=user)(sAMAccountName=$userName))").FindOne()
+Write-Log ("Service check | " + $svc.Name + " status: " + $svc.Status)
+Write-Log "Trying live ADSI query"
+
+Do {
+  # Try the ADSI query up to 10 times
+  Try {
+    $userObj = ([ADSISearcher] "(&(objectCategory=person)(objectClass=user)(sAMAccountName=$userName))").FindOne()
+  }
+  Catch {
+    Write-Log $_
+    Start-Sleep -seconds 2
+  }
+  $cnt++
+} Until (($userObj) -or ($cnt -ge 10))
+
+If ($userObj) {
+  # If our ADSI query worked, then put it in the users cache
   Write-Log ("Result: " + $userObj | Select-Object *)
   $result = @{
     timestamp = Get-Date
     data = $userObj
   }
-  # Update users cache
+  # Update users entry in the cache
   Foreach ($i in (0..($users.length))) {
     if ($users[$i]) {
       $users[$i] = $result
@@ -74,10 +87,8 @@ Try {
     Write-Log ('User not previously cached. Appending to cache')
     $users += $result
   }
-}
-# If failed, then load the most recent user info
-Catch {
-  Write-Log $_
+} Else {
+  # If our ADSI query failed, then check the user cache
   Write-Log "ADSI query failed. Checking local user cache"
   $u = $users | Where-Object {$_.Data.Properties.samaccountname -eq $userName}
   if ($u) {
@@ -90,8 +101,14 @@ Catch {
     Write-Log "Enforce_work_hours Abort"
     Exit 0
   }
-  
 }
+ 
+  
+
+# If failed, then load the most recent user info
+
+  
+
 
 
 $out | Export-CLIXML $cache
