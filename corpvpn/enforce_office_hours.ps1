@@ -52,6 +52,7 @@ if ($lastUser.accountType -ne 'Domain') {
 }
 
 Try {
+  Write-Log ("Service check | " + $svc.Name + " status: " + $svc.Status)
   Write-Log "Trying live ADSI query"
   $userObj = ([ADSISearcher] "(&(objectCategory=person)(objectClass=user)(sAMAccountName=$userName))").FindOne()
   Write-Log ("Result: " + $userObj | Select-Object *)
@@ -76,6 +77,7 @@ Try {
 }
 # If failed, then load the most recent user info
 Catch {
+  Write-Log $_
   Write-Log "ADSI query failed. Checking local user cache"
   $u = $users | Where-Object {$_.Data.Properties.samaccountname -eq $userName}
   if ($u) {
