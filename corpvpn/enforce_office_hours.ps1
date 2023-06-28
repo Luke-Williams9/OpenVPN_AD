@@ -107,16 +107,6 @@ If ($userObj) {
     Exit 0
   }
 }
- 
-  
-
-# If failed, then load the most recent user info
-
-  
-
-
-
-$out | Export-CLIXML $cache
 
 Write-Log ('SAMaccountName of user queried from AD: ' + $userObj.properties.samaccountname)
 
