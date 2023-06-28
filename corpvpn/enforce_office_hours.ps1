@@ -25,8 +25,10 @@ $svc = Get-Service 'OpenVPNService'
 # Store a list of user objects, so when users switch, their permissions can be read accurately
 $cache = "$install_path\userscache.xml"
 If (Test-Path $cache) {
+  Write-Log "User cache found"
   $users = Import-CLIXML $cache
 } Else {
+  Write-Lot "No user cache found"
   $users = @()
 }
 
@@ -68,25 +70,28 @@ Do {
 
 If ($userObj) {
   # If our ADSI query worked, then put it in the users cache
-  Write-Log ("Result: " + $userObj | Select-Object *)
-  $result = @{
+  Write-Log ("Result: " + ($userObj | Select-Object *))
+  $result = [PSCustomObject] @{
     timestamp = Get-Date
     data = $userObj
   }
   # Update users entry in the cache
-  Foreach ($i in (0..($users.length))) {
-    if ($users[$i]) {
-      $users[$i] = $result
-      $updated = $true
-      Write-Log ('Found cached user. Updating #' + $i)
-      Break
-    } 
+  if ($users.length -gt 0) {
+    Foreach ($i in (0..($users.length))) {
+      if ($users[$i]) {
+        $users[$i] = $result
+        $updated = $true
+        Write-Log ('Found cached user. Updating #' + $i)
+        Break
+      } 
+    }
   }
   # If the user was not found, then append it
   if (!($updated)) {
     Write-Log ('User not previously cached. Appending to cache')
     $users += $result
   }
+  $users | Export-CLIXML $cache
 } Else {
   # If our ADSI query failed, then check the user cache
   Write-Log "ADSI query failed. Checking local user cache"
