@@ -2,7 +2,7 @@
     OpenVPN Office hours enforcement
     By Luke Williams
     
-    Version 0.7
+    Version 0.8
 
     This script checks if the current users is in a 24x7 users security group. 
     If not, then it disables the VPN service outside of business hours.
@@ -28,7 +28,7 @@ If (Test-Path $cache) {
   Write-Log "User cache found"
   $users = Import-CLIXML $cache
 } Else {
-  Write-Lot "No user cache found"
+  Write-Log "No user cache found"
   $users = @()
 }
 
