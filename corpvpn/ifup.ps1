@@ -23,7 +23,7 @@ if ($svc.StartType -eq 'Disabled') {
 }
 
 # I think this doesn't work well with static IPs, but oh well. who on a work laptop should have a static IP anyways?
-$networkName = (Get-WmiObject Win32_NetworkAdapterConfiguration | Where-Object {$_.IPEnabled -eq $true -and $_.serviceName -notlike '*tap*'}).DNSDomain
+$networkName = (Get-WmiObject Win32_NetworkAdapterConfiguration | Where-Object {$_.IPEnabled -eq $true -and $_.serviceName -notlike '*tap*' -and $_.serviceName -notin 'ovpn-dco','wintun'}).DNSDomain
 $ComputerDomain = (Get-WmiObject Win32_ComputerSystem).Domain
 Write-Log ("Computer Domain: " + $ComputerDomain )
 Write-Log ("LAN/Wifi Domain: " + $networkName)
