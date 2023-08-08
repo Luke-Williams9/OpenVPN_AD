@@ -39,6 +39,7 @@
     <Exec>
       <Command>%windir%\System32\WindowsPowerShell\v1.0\powershell.exe</Command>
       <Arguments>-executionpolicy bypass -command "%programdata%\corpvpn\ifup.ps1"</Arguments>
+      <WorkingDirectory>c:\programdata\corpvpn</WorkingDirectory>
     </Exec>
   </Actions>
 </Task>
