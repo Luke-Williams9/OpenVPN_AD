@@ -1,0 +1,22 @@
+# Auto generated OpenVPN config file
+
+verb 4
+dev tun
+persist-tun
+persist-key
+data-ciphers AES-128-GCM:AES-192-GCM:AES-256-GCM:AES-128-CBC:CHACHA20-POLY1305
+data-ciphers-fallback AES-128-CBC
+auth SHA256
+tls-client
+client
+resolv-retry infinite
+remote <<remoteIP>> <<remotePort>> udp4
+setenv opt block-outside-dns
+nobind
+verify-x509-name <<x509>> name
+auth-user-pass
+ca <<file_ca>>
+cryptoapicert "THUMB:<<thumbprint>>"
+tls-auth <<file_key>> 1 
+remote-cert-tls server
+explicit-exit-notify
